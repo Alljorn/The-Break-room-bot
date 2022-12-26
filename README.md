@@ -5,4 +5,4 @@ L'objectif est de maximiser l'efficacité de travail de son personnage entre les
 
 <b>Achetez des récompenses, devenez votre propre chef et gagnez en renommée !</b>
 
-Disponible sur <a href='discord.com'>Discord</a> via un bot.
+Sera disponible sur <a href='discord.com'>Discord</a> via un bot.
