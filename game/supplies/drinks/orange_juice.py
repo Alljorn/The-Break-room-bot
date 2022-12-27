@@ -1,8 +1,8 @@
-from drink import Drink
+from game.supplies.drinks.drink import Drink
 from game.effects.effect import Effect
 
 
 class OrangeJuice(Drink):
 
-    def __init__(self) -> None:
-        super().__init__("Jus d'orange", Effect())
+    def __init__(self, name: str) -> None:
+        super().__init__(name, Effect())

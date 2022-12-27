@@ -4,5 +4,5 @@ from game.effects.effect import Effect
 
 class Cola(Drink):
 
-    def __init__(self) -> None:
-        super().__init__("Cola", Effect())
+    def __init__(self, name: str) -> None:
+        super().__init__(name, Effect())

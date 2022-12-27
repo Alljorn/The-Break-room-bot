@@ -1,10 +1,11 @@
-from game.supplies.supply import Suplly
+from game.supplies.supply import Supply
 from game.effects.effect import Effect
 
 
-class Drink(Suplly):
+class Drink(Supply):
 
     def __init__(self, name: str, effect: Effect) -> None:
+        assert type(effect) == Effect, "effect argument must be Effect"
         super().__init__(name)
         self.__effect = effect
 

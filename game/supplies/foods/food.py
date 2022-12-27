@@ -1,9 +1,10 @@
-from game.supplies.supply import Suplly
+from game.supplies.supply import Supply
 
 
-class Food(Suplly):
+class Food(Supply):
 
     def __init__(self, name: str, stamina: int) -> None:
+        assert type(stamina) == int, "stamina argument must be int"
         super().__init__(name)
         self.__stamina = stamina
 

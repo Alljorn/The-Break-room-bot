@@ -1,4 +1,4 @@
-from game.supplies.supply import Suplly
+from game.supplies.supply import Supply
 
 
 class Distributor:
@@ -7,14 +7,13 @@ class Distributor:
         self.__stock = {
             1: {}, 2: {}, 3: {},
             4: {}, 5: {}, 6: {},
-            7: {}, 8: {}, 9: {},
-                   0: {}
+            7: {}, 8: {}, 9: {}
         }
 
 
-    def supply(self, supply: Suplly, at_num: int) -> None:
-        assert isinstance(supply, Suplly), f"supply agument must be Suplly"
-        assert type(at_num) == int, f"at_num agument must be int"
+    def supply(self, supply: Supply, at_num: int) -> None:
+        assert isinstance(supply, Supply), "supply agument must be Suplly"
+        assert type(at_num) == int, "at_num agument must be int"
         assert 0 <= at_num <= 9, "at_num argument must be between 0 and 10"
 
         if self.__stock[at_num] == {}:
@@ -25,7 +24,7 @@ class Distributor:
     
 
     def get_length_at(self, num: int) -> int:
-        assert type(num) == int, f"at_num agument must be int"
+        assert type(num) == int, "at_num agument must be int"
         assert 0 <= num <= 9, "at_num argument must be between 0 and 10"
 
         if self.__stock[num] == {}:
@@ -42,6 +41,8 @@ class Distributor:
         else:
             return self.__stock[num]['type'].__name__
 
+    def get_stock(self) -> dict[int, dict]:
+        return dict(self.__stock)
 
     def __repr__(self) -> str:
         affichage = ""
