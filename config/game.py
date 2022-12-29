@@ -1,2 +1,3 @@
 
 DEFAULT_USER_ROLE = 'classic'
+DEFAULT_USER_MONEY = 0

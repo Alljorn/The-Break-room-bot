@@ -3,7 +3,7 @@ import sqlite3
 from game.data_base import DATA_BASE
 from game.exceptions import UserAlreadyExist,UserNotExist,RoleNotReferenced
 
-from config.game import DEFAULT_USER_ROLE
+from config.game import DEFAULT_USER_ROLE, DEFAULT_USER_MONEY
 
 
 class UserManager:
@@ -13,10 +13,12 @@ class UserManager:
     Méthodes de classe:
         - change_use_role(id, role): change le rôle d'un utilisateur
         - delete_user(id): supprime un uilisateur
+        - get_money_of(id): donne le montant de l'agent d'un utilisateu via son id
         - get_permission_level(role): donne le niveau de permision d'un rôle référencé
         - get_role_of(id): donne le rôle d'un utilisteur via son identifiant
         - get_roles_ref(): donne les rôles référencés par l'User Manager
         - get_user(id): donne les données d'un utilisateur via son identifiant
+        - set_money_of(id, money): change le montant de l'agent d'un utilisateu via son id
         - user_exist(id): vérifie qu'un utilisteur existe via son identifiant
         - new_user(id): crée un utilisateur
     """
@@ -111,7 +113,7 @@ class UserManager:
         cursor = DATA_BASE.cursor()
         try:
             # Requête SQL ajoutant l'utilisateur avec les paramètres par défaut
-            cursor.execute(f"INSERT INTO user VALUES({id}, '{DEFAULT_USER_ROLE}');")
+            cursor.execute(f"INSERT INTO user VALUES({id}, '{DEFAULT_USER_ROLE}', {DEFAULT_USER_MONEY});")
             DATA_BASE.commit() # Met à jour la base de données
         except sqlite3.IntegrityError:
             raise RoleNotReferenced(DEFAULT_USER_ROLE)
@@ -190,15 +192,15 @@ class UserManager:
         role = response.fetchone() # On récupére les données
 
         if role is None: raise UserNotExist(id)
-        return role
+        return role[0]
 
     @staticmethod
     def get_permission_level_of(role: str) -> int:
         """
         Donne le niveau de permision d'un rôle référencé
         Argument:
-            id: int 
-            | L'identifiant de l'utilisateur
+            role: str
+            | Le nouveau rôle de l'utilisateur
         Exception:
             - RoleNotReferenced: si le rôle n'est pas référencé par le User Manager
         
@@ -208,9 +210,56 @@ class UserManager:
         
         # On récupére le curseur SQL pour executer une requête
         cursor = DATA_BASE.cursor()
-        # Requête SQL récupérant le nivu de permision du rôle
+        # Requête SQL récupérant le niveau de permission du rôle
         response = cursor.execute(f"SELECT level_permission FROM roles_ref WHERE name == '{role}';")
         level_permission = response.fetchone() # On récupére les données
         
         if level_permission is None: raise RoleNotReferenced(role)
         return  level_permission[0]
+
+    @staticmethod
+    def get_money_of(id: int) -> int:
+        """
+        Donne le montant de l'agent d'un utilisateu via son id
+        Argument:
+            id: int 
+            | L'identifiant de l'utilisateur
+        Exception:
+            - UserNotExist: si l'utilisateur n'existe pas
+        
+        renvoie le montant de l'argent de l'utilisateur
+        """
+        assert type(id) == int, "id agument must be int"
+        
+        # On récupére le curseur SQL pour executer une requête
+        cursor = DATA_BASE.cursor()
+        # Requête SQL récupérant le montant de l'agent de l'utilisateur
+        response = cursor.execute(f"SELECT money FROM user WHERE id == {id};")
+        money = response.fetchone() # On récupére les données
+
+        if money is None: raise UserNotExist(id)
+        return money[0]
+    
+    @staticmethod
+    def set_money_of(id: int, money: int) -> int:
+        """
+        Change le montant de l'agent d'un utilisateu via son id
+        Argument:
+            id: int 
+            | L'identifiant de l'utilisateur
+            money: int
+            | Le montant de l'argent à définir
+        Exception:
+            - UserNotExist: si l'utilisateur n'existe pas
+        
+        ne renvoie rien
+        """
+        assert type(id) == int, "id agument must be int"
+        if not UserManager.user_exist(id): raise UserNotExist(id)
+        assert type(money) == int, "money agument must be int"
+        
+        # On récupére le curseur SQL pour executer une requête
+        cursor = DATA_BASE.cursor()
+        # Requête SQL changent le montant de l'agent de l'utilisateur
+        cursor.execute(f"UPDATE user SET money = {money} WHERE id == {id};")
+        DATA_BASE.commit() # Met à jour la base de données
