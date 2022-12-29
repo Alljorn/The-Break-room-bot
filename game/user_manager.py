@@ -193,7 +193,7 @@ class UserManager:
         return role
 
     @staticmethod
-    def get_permission_level_of(role: str) -> tuple:
+    def get_permission_level_of(role: str) -> int:
         """
         Donne le niveau de permision d'un rôle référencé
         Argument:
@@ -202,7 +202,7 @@ class UserManager:
         Exception:
             - RoleNotReferenced: si le rôle n'est pas référencé par le User Manager
         
-        renvoie un tuple contenant le niveau de pemision du rôle
+        renvoie le niveau de pemision du rôle (int)
         """
         assert type(role) == str, "role agument must be str"
         
@@ -213,4 +213,4 @@ class UserManager:
         level_permission = response.fetchone() # On récupére les données
         
         if level_permission is None: raise RoleNotReferenced(role)
-        return  level_permission
+        return  level_permission[0]
