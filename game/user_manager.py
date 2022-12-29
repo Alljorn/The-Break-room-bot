@@ -1,7 +1,7 @@
 import sqlite3
 
 from game.data_base import DATA_BASE
-from game.exceptions import UserAlreadyExist,UserDoNotExist,UserRoleDoNotReferenced
+from game.exceptions import UserAlreadyExist,UserNotExist,UserRoleNotReferenced
 
 from config.game import DEFAULT_USER_ROLE
 
@@ -23,6 +23,8 @@ class UserManager:
     def __init_roles_ref():
         """
         Initialise les rôles référencés dans la base données
+
+        ne renvoie rien
         """
         # On récupére le curseur SQL pour executer une requête
         cursor = DATA_BASE.cursor()
@@ -54,6 +56,7 @@ class UserManager:
         Argument:
             id: int 
             | L'identifiant de l'utilisateur
+        Exception
         
         renvoie un tuple contenant les données de l'utilisateur
         """
@@ -64,6 +67,7 @@ class UserManager:
         # Requête SQL séléctionant l'entrée dans la base de données de l'utilisateurr
         response = cursor.execute(f"SELECT * FROM user WHERE id == {id}")
         return response.fetchone() # On récupére les données
+
     
     @staticmethod
     def user_exist(id: int) -> bool:
@@ -86,6 +90,7 @@ class UserManager:
             | L'identifiant de l'utilisateur
         Exception:
             | UserAreadyExist: si l'utilisateur existe déjà
+            | UserRoleNotReferenced: si le rôle pr défaut n'est pas référencé
         
         renvoie un tuple contenant les informations de l'utilisteur créé
         """
@@ -99,7 +104,7 @@ class UserManager:
             cursor.execute(f"INSERT INTO user VALUES({id}, '{DEFAULT_USER_ROLE}');")
             DATA_BASE.commit() # Met à jour la base de données
         except sqlite3.IntegrityError:
-            raise UserRoleDoNotReferenced(DEFAULT_USER_ROLE)
+            raise UserRoleNotReferenced(DEFAULT_USER_ROLE)
         # Récupére les données de l'utilisateur créé
         return UserManager.get_user(id)
     
@@ -113,7 +118,7 @@ class UserManager:
             role: str
             | Le nouveau rôle de l'utilisateur
         Exception:
-            - UserRoleDoNotReferenced: si le rôle n'est pas référencé par le User Manager
+            - UserRoleNotReferenced: si le rôle n'est pas référencé par le User Manager
         
         renvoie un tuple contenant les informations de l'utilisteur avec le rôle modifié
         renvoie None si l'utilisteur n'existe pas
@@ -128,7 +133,7 @@ class UserManager:
             cursor.execute(f"UPDATE user SET role = '{role}' WHERE id == {id};")
             DATA_BASE.commit() # Met à jour la base de données
         except sqlite3.IntegrityError:
-            raise UserRoleDoNotReferenced(role)
+            raise UserRoleNotReferenced(role)
         # Récupére les données de l'utilisateur
         return UserManager.get_user(id)
 
@@ -140,12 +145,12 @@ class UserManager:
             id: int 
             | L'identifiant de l'utilisateur
         Exception:
-            | UserDoNotExist: si l'utilisateur n'existe pas
+            | UserNotExist: si l'utilisateur n'existe pas
         
         ne renvoie rien
         """
         assert type(id) == int, "id agument must be int"
-        if not UserManager.user_exist(id): raise UserDoNotExist
+        if not UserManager.user_exist(id): raise UserNotExist(id)
         
         # On récupére le curseur SQL pour executer une requête
         cursor = DATA_BASE.cursor()
