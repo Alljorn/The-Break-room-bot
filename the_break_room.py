@@ -16,15 +16,3 @@ distributor = Distributor()
 
 
 
-if __name__ == '__main__':
-    
-
-    distributor.supply(Apple("Golden Apple"), 3)
-    distributor.supply(Apple("Golden Apple"), 3)
-    distributor.supply(Apple("Red Apple"), 3)
-    distributor.supply(Cola("Chery Cola"), 1)
-
-    print(distributor)
-    length_at_3 = distributor.get_length_at(3)
-    print("Length at 3:", length_at_3, f"suppl{'y' if length_at_3 <= 1 else 'ies'}")
-    
