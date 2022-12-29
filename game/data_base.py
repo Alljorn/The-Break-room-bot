@@ -26,6 +26,7 @@ try:
     cursor.execute(
     """CREATE TABLE "roles_ref" (
         "name"	TEXT NOT NULL,
+        "level_permission"	INTEGER NOT NULL,
         PRIMARY KEY("name")
     );
     """)
