@@ -23,7 +23,7 @@ class UserManager:
         - new_user(id): crée un utilisateur
     """
 
-    def __init_roles_ref():
+    def __init_roles_ref() -> None:
         """
         Initialise les rôles référencés dans la base données
 
@@ -244,7 +244,7 @@ class UserManager:
     def set_money_of(id: int, money: int) -> int:
         """
         Change le montant de l'agent d'un utilisateu via son id
-        Argument:
+        Arguments:
             id: int 
             | L'identifiant de l'utilisateur
             money: int
