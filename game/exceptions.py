@@ -48,5 +48,14 @@ class EffectNotExist(Exception):
 
 
 class SupplyNotInInventory(Exception):
-    def __init__(self, user_id: int, supply_name: str) -> None:
-        super().__init__(f"'{supply_name} supply name is not in inventory of {user_id} user id")
+    def __init__(self, id: int, supply_name: str) -> None:
+        super().__init__(f"'{supply_name} supply name is not in inventory of {id} id")
+
+
+class DistributorAlreadyExist(Exception):
+    def __init__(self, distributor_id: int) -> None:
+        super().__init__(f"'{distributor_id}' distributor id already exists in table")
+
+class DistributorNotExist(Exception):
+    def __init__(self, distributor_id: int) -> None:
+        super().__init__(f"'{distributor_id}' distributor id does not exist in table")

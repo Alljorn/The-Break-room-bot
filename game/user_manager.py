@@ -8,7 +8,7 @@ from game.exceptions import UserAlreadyExist,UserNotExist,RoleNotReferenced, Sup
 
 class UserManager:
     """
-    L'User Manager permet de gérer les données des utilisateur
+    L'User Manager permet de gérer les données des utilisateurs
 
     Méthodes de classe:
         - add_supply_to_inventory_of(user_id, supply_name): ajoute un produit à l'inventaire d'un utilisateur
@@ -72,7 +72,7 @@ class UserManager:
             return False
 
     @staticmethod
-    def new_user(user_id: int) -> tuple:
+    def new_user(user_id: int) -> None:
         """
         Crée un utilisateur
         Argument:
@@ -326,7 +326,7 @@ class UserManager:
         # Requête SQL donnant le nom du produit et la quantité possédée par l'utilisateur
         response = cursor.execute(f"""
                                    SELECT content, quantity
-                                   FROM inventories_slots
+                                   FROM user_inventory
                                    WHERE id == {user_id} and content == "{supply_name}";
                                    """)
         slot = response.fetchone() # On récupère les données
@@ -380,7 +380,7 @@ class UserManager:
         # Requête SQL récupérant les noms des produits possédés par l'utilisateur
         response = cursor.execute(f"""
                                    SELECT content, quantity
-                                   FROM inventories_slots
+                                   FROM user_inventory
                                    WHERE id == {user_id};
                                    """)
         return response.fetchall() # On récupère les données
@@ -437,13 +437,13 @@ class UserManager:
         if not UserManager.supply_in_inventory_of(user_id, supply_name):
             # On ajoute le produit à l'inventaire
             cursor.execute(f"""
-                            INSERT INTO inventories_slots (id, content)
+                            INSERT INTO user_inventory (id, content)
                             VALUES ({user_id}, "{supply_name}");
                             """)
         else:
             # On incrémente la quantité du produit possédé
             cursor.execute(f"""
-                        UPDATE inventories_slots
+                        UPDATE user_inventory
                         SET quantity = quantity + 1
                         WHERE id == {user_id} and content == "{supply_name}";
                         """)
@@ -476,15 +476,15 @@ class UserManager:
         cursor = DATA_BASE.cursor()
         # Décrémente la quantité du produit possédé
         cursor.execute(f"""
-                        UPDATE inventories_slots
+                        UPDATE user_inventory
                         SET quantity = quantity - 1
                         WHERE id == {user_id} and content == "{supply_name}";
                         """)
-        # Si la quanité possédé atteind zero
+        # Si la quanité possédé atteind zéro
         if UserManager.get_quantity_from_inventory_of(user_id, supply_name) <= 0:
             # On supprime le slot
             cursor.execute(f"""
-                            DELETE FROM inventories_slots
+                            DELETE FROM user_inventory
                             WHERE id == {user_id} and content == "{supply_name}";
                             """)
         DATA_BASE.commit() # Met à jour la base de données
