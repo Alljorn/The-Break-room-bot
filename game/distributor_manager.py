@@ -286,7 +286,7 @@ class DistributorManager:
         cursor = DATA_BASE.cursor()
         # Décrémente la quantité du produit possédé
         cursor.execute(f"""
-                        UPDATE distribuor_inventory
+                        UPDATE distributor_inventory
                         SET quantity = quantity - 1
                         WHERE id == {distributor_id} and content == "{supply_name}";
                         """)

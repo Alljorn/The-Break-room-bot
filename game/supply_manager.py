@@ -95,7 +95,7 @@ class SupplyManager:
             return False
 
     @staticmethod
-    def new_supply(name: str, type_name: str, effect_name: str = "NULL") -> None:
+    def new_supply(name: str, type_name: str, price: int, effect_name: str = "NULL") -> None:
         """
         Crée un nouveau produit
         Arguments:
@@ -103,6 +103,8 @@ class SupplyManager:
             | Le nom du produit
             type_name: str
             | Le type du produit
+            price: int
+            | Le prix du produit
             effect_name: str
             | Le nom de l'effet du produit
         Exceptions:
@@ -115,6 +117,8 @@ class SupplyManager:
         assert type(name) == str, "name agument must be str"
         if SupplyManager.supply_exist(name): raise SupplyAlreadyExist(name)
         assert type(type_name) == str, "type_name agument must be str"
+        assert type(price) == int, "price argument must be int"
+        assert price >= 0, "price argument must be positive"
         assert type(effect_name) == str, "effect_name agument must be str"
 
         # On récupére le curseur SQL pour executer une requête
@@ -125,7 +129,7 @@ class SupplyManager:
             # Requête SQL ajoutant le produit à la base de données
             cursor.execute(f"""
                             INSERT INTO supply
-                            VALUES('{name}', '{type_name}', {effect_name});
+                            VALUES('{name}', '{type_name}', {price}, {effect_name});
                             """)
             DATA_BASE.commit() # Met à jour la base de données
         except sqlite3.IntegrityError:
