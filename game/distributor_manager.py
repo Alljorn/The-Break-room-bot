@@ -294,7 +294,7 @@ class DistributorManager:
         if DistributorManager.get_quantity_from_inventory_of(distributor_id, supply_name) <= 0:
             # On supprime le slot
             cursor.execute(f"""
-                            DELETE FROM distribuor_inventory
+                            DELETE FROM distributor_inventory
                             WHERE id == {distributor_id} and content == "{supply_name}";
                             """)
         DATA_BASE.commit() # Met à jour la base de données
