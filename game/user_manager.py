@@ -201,7 +201,7 @@ class UserManager:
         cursor = DATA_BASE.cursor()
         # Requête SQL récupérant le niveau de permission du rôle
         response = cursor.execute(f"""
-                                   SELECT level_permissio
+                                   SELECT level_permission
                                    FROM roles_ref
                                    WHERE name == '{role_name}';
                                    """)

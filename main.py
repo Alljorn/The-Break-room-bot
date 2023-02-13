@@ -1,6 +1,11 @@
 import discord
 from config.token import token
 
+try:
+    import nest_asyncio
+    nest_asyncio.apply()
+finally:
+    pass
 
 from game.user_manager import UserManager
 from game.distributor_manager import DistributorManager
@@ -12,7 +17,7 @@ bot = discord.Bot()
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user} prêt")
+    print(f"{bot.user.name} est prêt")
 
 @bot.slash_command(name = "faire_une_pause", description = "Prenez une pause, commande principale")
 async def take_a_break(ctx: discord.ApplicationContext):
@@ -34,7 +39,7 @@ async def take_a_break(ctx: discord.ApplicationContext):
                 await interaction.response.edit_message(content=message, view=None)
         await ctx.respond(message, view = create_game_view(timeout=10))
     else:
-##########-------------------------- DITRIBUTEUR --------------------------##########
+##########-------------------------- DISTRIBUTEUR --------------------------##########
         class distributor_embed(discord.Embed):
             """
             L'embed d'affichage du distributeur
@@ -70,7 +75,7 @@ async def take_a_break(ctx: discord.ApplicationContext):
                             )
         class distributor_view(discord.ui.View):
             """
-            Le menu de navigation du distributeur
+            Le menu de navigation du distributeur.
             """
 
             # Si le distributeur existe
@@ -123,8 +128,9 @@ async def take_a_break(ctx: discord.ApplicationContext):
                             debug_message += f"[DEBUG] **{select.values[0]}** a été retiré du distributeur et ajouté à l'inventaire\n"
                             debug_message += f"inventaire:\n{UserManager.get_inventory_of(ctx.author.id)}\n"
                             
-                            # Mesage de succes
-                            await interaction.response.edit_message(content=debug_message, view = None, embed = discord.Embed(title="Achat effectué !", description=f"Vous avez acheté **{select.values[0]}**"))
+                            # Message de succès
+                            embed = discord.Embed(title="Achat effectué !", description=f"Vous avez acheté **{select.values[0]}**")
+                            await interaction.response.edit_message(content=debug_message, view=None, embed=embed)
 
         class break_room_embed(discord.Embed):
             def __init__(self):
@@ -157,7 +163,6 @@ async def take_a_break(ctx: discord.ApplicationContext):
                 if select.values[0] == "Distributeur":
                     await interaction.response.edit_message(embed = distributor_embed(), view = distributor_view(disable_on_timeout=True))
         await ctx.respond(embed = break_room_embed(), view = break_room_view(disable_on_timeout=True))
-        
 
 
 bot.run(token)
