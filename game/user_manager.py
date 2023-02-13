@@ -12,7 +12,7 @@ class UserManager:
 
     Méthodes de classe:
         - add_supply_to_inventory_of(user_id, supply_name): ajoute un produit à l'inventaire d'un utilisateur
-        - change_use_role(user_id, role_name): change le rôle d'un utilisateur
+        - change_role_of(user_id, role_name): change le rôle d'un utilisateur
         - delete_user(user_id): supprime un uilisateur
         - get_from_inventory_of(user_id, supply_name): donne le slot du produit dans l'inventaire d'un utilisateur
         - get_inventoy_of(user_id): donne l'inventaire d'un utilisateur
@@ -22,9 +22,11 @@ class UserManager:
         - get_roles_ref(): donne les rôles référencés par l'User Manager
         - get_quantity_from_inventory_of(user_id, supply_name): donne la quantité d'un produit possédé par un utilisateur
         - get_user(user_id): donne les données d'un utilisateur via son identifiant
+        - is_active(user_id): donne l'état (actif/True ou en repos/False) d'un utilisteur via son identifiant
         - remove_from_inventory_of(user_id): enlève un produit de l'inventaire d'un utilisateur
         - role_exist(role): vérifie qu'un rôle est référencé par l'User Manager
         - set_money_of(user_id, money): change le montant de l'agent d'un utilisateu via son id
+        - set_status_of(user_id, status): change l'état (actif/True ou en repos/False) d'un utilisateu via son id
         - supply_in_inventory_of(user_id, supply_name): vérifie qu'un produit est présent dans l'inventaire d'un utilisateur
         - user_exist(user_id): vérifie qu'un utilisteur existe via son identifiant
         - new_user(user_id): crée un utilisateur
@@ -156,7 +158,7 @@ class UserManager:
         
         # On récupére le curseur SQL pour executer une requête
         cursor = DATA_BASE.cursor()
-        # Requête SQL récupérant le rôle de l'utilisateu
+        # Requête SQL récupérant le rôle de l'utilisateur
         response = cursor.execute(f"""
                                    SELECT role
                                    FROM user 
@@ -211,7 +213,7 @@ class UserManager:
         return  level_permission[0]
 
     @staticmethod
-    def change_user_role(user_id: int, role_name: str) -> tuple:
+    def change_role_of(user_id: int, role_name: str) -> tuple:
         """
         Change le rôle d'un utilisateur
         Arguments:
@@ -240,6 +242,63 @@ class UserManager:
             DATA_BASE.commit() # Met à jour la base de données
         except sqlite3.IntegrityError:
             raise RoleNotReferenced(role_name)
+
+    
+    # Status Management
+    @staticmethod
+    def is_active(user_id: int) -> bool:
+        """
+        Donne l'état (actif/True ou en repos/False) d'un utilisteur via son identifiant
+        Argument:
+            user_id: int 
+            | L'identifiant de l'utilisateur
+        Exception:
+            - UserNotExist: si l'utilisateur n'existe pas
+        
+        renvoie True l'utilisateur si l'utilisateur est en activité, False si il est en repos
+        """
+        assert type(user_id) == int, "user_id agument must be int"
+        
+        # On récupére le curseur SQL pour executer une requête
+        cursor = DATA_BASE.cursor()
+        # Requête SQL récupérant l'état de l'utilisateur
+        response = cursor.execute(f"""
+                                   SELECT status
+                                   FROM user 
+                                   WHERE id == {user_id};
+                                   """)
+        role = response.fetchone() # On récupére les données
+
+        if role is None: raise UserNotExist(user_id)
+        return bool(role[0])
+    
+    @staticmethod
+    def set_status_of(user_id: int, status: bool) -> None:
+        """
+        Change l'état (actif/True ou en repos/False) d'un utilisateu via son id
+        Arguments:
+            user_id: int 
+            | L'identifiant de l'utilisateur
+            status: bool
+            | L'état (actif/True ou en repos/False) de l'utilisateur
+        Exception:
+            - UserNotExist: si l'utilisateur n'existe pas
+        
+        ne renvoie rien
+        """
+        assert type(user_id) == int, "user_id agument must be int"
+        if not UserManager.user_exist(user_id): raise UserNotExist(user_id)
+        assert type(status) == bool, "status agument must be bool"
+        
+        # On récupére le curseur SQL pour executer une requête
+        cursor = DATA_BASE.cursor()
+        # Requête SQL changent l'état de l'utilisateur
+        cursor.execute(f"""
+                        UPDATE user
+                        SET status = {1 if status else 0}
+                        WHERE id == {user_id};
+                        """)
+        DATA_BASE.commit() # Met à jour la base de données
     
     
     # Money Management
