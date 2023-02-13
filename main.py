@@ -1,12 +1,6 @@
 import discord
 from config.token import token
 
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-finally:
-    pass
-
 from game.user_manager import UserManager
 from game.distributor_manager import DistributorManager
 from game.supply_manager import SupplyManager
