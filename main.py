@@ -102,12 +102,17 @@ async def take_a_break(ctx: discord.ApplicationContext):
                         # Retour au menu
                         await interaction.response.edit_message(embed = break_room_embed(), view = break_room_view(disable_on_timeout=True))
                     else: # Sinon un choix d'achat a été fait
+                        ###
+                        debug = False # Mettre la variable à True pour activer les messages de debug, False sinon
+                        ###
                         debug_message = f"[DEBUG] Achat en cours de **{select.values[0]}** ...\n"
                         # On récupère les informations nécessaire aux oppérations
                         user_money = UserManager.get_money_of(ctx.author.id) # la quantité de monnaie que l'utilisateur possède
                         prix = SupplyManager.get_supply(select.values[0])[2] # le prix du produit choisit
-                        debug_message += f"inventaire:\n{UserManager.get_inventory_of(ctx.author.id)}\n"
-                        debug_message += f"[DEBUG] user_money: {user_money}  |  prix: {prix}$\n" 
+                        debug_message += f"inventaire:\n{UserManager.get_inventory_of(ctx.author.id)}"
+                        debug_message += f"[DEBUG] user_money: {user_money}  |  prix: {prix}$\n"
+                        # Message d'échec 
+                        embed = discord.Embed(title="Achat annulé", description=f"Solde insuffisant à l'achat de **{select.values[0]}**")
                         # On vérifie que l'utilisateur peut acheté le produit
                         if user_money < prix:
                             debug_message += f"[DEBUG] Solde insuffisant, l'achat de **{select.values[0]}** est annulé\n"
@@ -124,7 +129,7 @@ async def take_a_break(ctx: discord.ApplicationContext):
                             
                             # Message de succès
                             embed = discord.Embed(title="Achat effectué !", description=f"Vous avez acheté **{select.values[0]}**")
-                            await interaction.response.edit_message(content=debug_message, view=None, embed=embed)
+                        await interaction.response.edit_message(content=debug_message if debug else "", view=None, embed=embed)
 
         class break_room_embed(discord.Embed):
             def __init__(self):
