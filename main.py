@@ -1,4 +1,5 @@
 import discord
+import config.timeout
 from config.token import token
 
 from game.user_manager import UserManager
@@ -18,20 +19,19 @@ async def take_a_break(ctx: discord.ApplicationContext):
     if not UserManager.user_exist(ctx.author.id):
         message = "Félicitation vous êtes embauché !\nCréer une partie ?"
         class create_game_view(discord.ui.View):
-            async def on_timeout(self):
-                await self.message.edit(view=None)
 
             @discord.ui.button(label="J'accepte", style=discord.ButtonStyle.green)
             async def confirm_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
                 UserManager.new_user(ctx.author.id)
                 message = "Encore félicitation !"
+                self.disable_on_timeout = False
                 await interaction.response.edit_message(content=message, view=None)
             
             @discord.ui.button(label="Je refuse", style=discord.ButtonStyle.red)
             async def cancel_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
                 message = "Une autre occasion se présentera"
                 await interaction.response.edit_message(content=message, view=None)
-        await ctx.respond(message, view = create_game_view(timeout=10))
+        await ctx.respond(message, view = create_game_view(timeout=config.timeout.CREATE_GAME, disable_on_timeout=True))
     else:
 ##########-------------------------- DISTRIBUTEUR --------------------------##########
         class distributor_embed(discord.Embed):
@@ -72,6 +72,12 @@ async def take_a_break(ctx: discord.ApplicationContext):
             Le menu de navigation du distributeur.
             """
 
+            async def on_timeout(self) -> None:
+                UserManager.set_status_of(ctx.author.id, True)
+                self.disable_all_items()
+                await ctx.interaction.edit_original_response(view=self)
+            
+
             # Si le distributeur existe
             if DistributorManager.distributor_exist(ctx.author.id):
                 # Création d'un menu de selection
@@ -82,7 +88,7 @@ async def take_a_break(ctx: discord.ApplicationContext):
                     max_values=1,
                     # ajout des options
                     options = [
-                        discord.SelectOption( # retour au menu principal
+                        discord.SelectOption(
                             label="Quitter",
                             description="Retourner à la salle de pause"
                         )]
@@ -99,8 +105,8 @@ async def take_a_break(ctx: discord.ApplicationContext):
                     """
                     # Si on veut quitter le ditributeur
                     if select.values[0] == "Quitter":
-                        # Retour au menu
-                        await interaction.response.edit_message(embed = break_room_embed(), view = break_room_view(disable_on_timeout=True))
+                        self.on_timeout = super().on_timeout
+                        await interaction.response.edit_message(embed = break_room_embed(), view = break_room_view(timeout=config.timeout.BREAK_ROOM))
                     else: # Sinon un choix d'achat a été fait
                         ###
                         debug = False # Mettre la variable à True pour activer les messages de debug, False sinon
@@ -129,8 +135,55 @@ async def take_a_break(ctx: discord.ApplicationContext):
                             
                             # Message de succès
                             embed = discord.Embed(title="Achat effectué !", description=f"Vous avez acheté **{select.values[0]}**")
+                        # L'utilisateur redevient actif
+                        UserManager.set_status_of(ctx.author.id, True)
+                        # Affichage du résultat
+                        self.on_timeout = super().on_timeout
                         await interaction.response.edit_message(content=debug_message if debug else "", view=None, embed=embed)
+##########----------------------------- BUREAU -----------------------------##########
+        class office_embed(discord.Embed):
+            def __init__(self):
+                super().__init__(
+                    title = "Vous voilà devant votre bureau",
+                    description="Choisissez une tâche à accomplir"
+                )
+                self.add_field(
+                    name = "Tâches en cours:",
+                    value = "vide",
+                    inline = False
+                )
+                self.add_field(
+                    name = "Tâches disponibles:",
+                    value = "vide",
+                    inline = False
+                )
+        class office_view(discord.ui.View):
 
+            async def on_timeout(self) -> None:
+                UserManager.set_status_of(ctx.author.id, True)
+                self.disable_all_items()
+                await ctx.interaction.edit_original_response(view=self)
+            
+            @discord.ui.select(
+                placeholder = "Que voulez-vous faire ?",
+                min_values = 1,
+                max_values = 1,
+                options = {
+                    discord.SelectOption(
+                            label="Quitter",
+                            description="Retourner à la salle de pause"
+                        )
+                }
+            )
+            async def select_callback(self, select: discord.ui.Select, interaction: discord.Interaction):
+                """
+                Est appelé quand un choix à été fait 
+                """
+                # Si on veut quitter le bureau
+                if select.values[0] == "Quitter":
+                    self.on_timeout = super().on_timeout
+                    await interaction.response.edit_message(embed = break_room_embed(), view = break_room_view(timeout=config.timeout.BREAK_ROOM))
+##########------------------------- SALLE DE PAUSE -------------------------##########
         class break_room_embed(discord.Embed):
             def __init__(self):
                 super().__init__( 
@@ -139,29 +192,50 @@ async def take_a_break(ctx: discord.ApplicationContext):
                 )
                 self.add_field(
                     name = "Tâches en cours:",
-                    value = "vide"
+                    value = "vide",
+                    inline = False
                 )
                 self.add_field(
                     name = "Rapport de travail:",
-                    value = "vide"
+                    value = "vide",
+                    inline = False
                 )
         class break_room_view(discord.ui.View):
+
+            async def on_timeout(self) -> None:
+                UserManager.set_status_of(ctx.author.id, True)
+                self.disable_all_items()
+                await ctx.interaction.edit_original_response(view=self)
         
             @discord.ui.select(
                 placeholder = "Où souhaitez-vous aller ?",
                 min_values = 1,
-                max_values=1,
+                max_values = 1,
                 options = [
                     discord.SelectOption(
                         label="Distributeur",
-                        description="Acheter tout un tas de chose !"
+                        description="Achetez tout un tas de chose !"
+                    ),
+                    discord.SelectOption(
+                        label="Bureau",
+                        description="Retournez travailler dans votre bureau"
                     )
                 ]
+
             )
             async def select_callback(self, select: discord.ui.Select, interaction: discord.Interaction):
                 if select.values[0] == "Distributeur":
-                    await interaction.response.edit_message(embed = distributor_embed(), view = distributor_view(disable_on_timeout=True))
-        await ctx.respond(embed = break_room_embed(), view = break_room_view(disable_on_timeout=True))
+                    self.on_timeout = super().on_timeout
+                    await interaction.response.edit_message(embed = distributor_embed(), view = distributor_view(timeout=config.timeout.DISTRIBUTOR))
+                elif select.values[0] == "Bureau":
+                    self.on_timeout = super().on_timeout
+                    await interaction.response.edit_message(embed = office_embed(), view = office_view(timeout=config.timeout.OFFICE))
+        
+        print(UserManager.is_active(ctx.author.id))
+        # L'utiliateur est maintenant en pause
+        UserManager.set_status_of(ctx.author.id, False)
+        # Envoie du menu de séléction
+        await ctx.respond(embed = break_room_embed(), view = break_room_view(timeout=config.timeout.BREAK_ROOM))
 
 
 bot.run(token)
