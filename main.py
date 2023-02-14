@@ -7,6 +7,7 @@ from game.supply_manager import SupplyManager
 
 
 bot = discord.Bot()
+bot.load_extension("experiments.network")  # responsable : AesirIvy
 
 
 @bot.event
