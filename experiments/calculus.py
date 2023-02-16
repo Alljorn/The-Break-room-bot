@@ -1,8 +1,9 @@
-from math import log
+import math
 
 
 class Calculus:
 
     @staticmethod
-    def value(msg):
-        return sum([round(log(len(i))/10, 2) for i in msg.split(' ')])
+    def value(msg: list) -> float:
+        return round(math.fsum([math.log(len(i))/60
+                                for i in msg.split(' ')]), 2)

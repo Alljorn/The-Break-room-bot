@@ -5,7 +5,6 @@ from game.supply_manager import SupplyManager
 from game.exceptions import UserAlreadyExist,UserNotExist,RoleNotReferenced, SupplyNotExist, SupplyNotInInventory
 
 
-
 class UserManager:
     """
     L'User Manager permet de gérer les données des utilisateurs
@@ -31,7 +30,7 @@ class UserManager:
         - user_exist(user_id): vérifie qu'un utilisteur existe via son identifiant
         - new_user(user_id): crée un utilisateur
     """
- 
+
     @staticmethod
     def get_user(user_id: int) -> tuple:
         """
@@ -54,7 +53,7 @@ class UserManager:
 
         if user_data is None: raise UserNotExist(user_id)
         return user_data
- 
+
     @staticmethod
     def user_exist(user_id: int) -> bool:
         """
@@ -67,7 +66,7 @@ class UserManager:
         """
         assert type(user_id) == int, "user_id agument must be int"
 
-        try :
+        try:
             UserManager.get_user(user_id)
             return True
         except UserNotExist:
@@ -198,7 +197,7 @@ class UserManager:
         renvoie le niveau de pemision du rôle (int)
         """
         assert type(role_name) == str, "role_name agument must be str"
-        
+
         # On récupére le curseur SQL pour executer une requête
         cursor = DATA_BASE.cursor()
         # Requête SQL récupérant le niveau de permission du rôle
@@ -506,7 +505,7 @@ class UserManager:
                         SET quantity = quantity + 1
                         WHERE id == {user_id} and content == "{supply_name}";
                         """)
-        DATA_BASE.commit() # Met à jour la bse de données
+        DATA_BASE.commit()  # Met à jour la base de données
 
     @staticmethod
     def remove_from_inventory_of(user_id: int, supply_name: str) -> None:

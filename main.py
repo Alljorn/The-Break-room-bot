@@ -16,7 +16,8 @@ experiments.init(bot)  # responsable: AesirIvy
 async def on_ready():
     print(f"{bot.user.name} est prêt.")
 
-@bot.slash_command(name = "faire_une_pause", description = "Prenez une pause, commande principale")
+
+@bot.slash_command(name="faire_une_pause", description="Prenez une pause, commande principale")
 async def take_a_break(ctx: discord.ApplicationContext):
     if not UserManager.user_exist(ctx.author.id):
         message = "Félicitation vous êtes embauché !\nCréer une partie ?"

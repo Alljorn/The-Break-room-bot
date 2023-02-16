@@ -3,37 +3,36 @@ import sqlite3 as sql
 import discord
 from discord.ext import commands
 
-from experiments.config import MAIN_COLOUR, ERROR_COLOUR
-
 
 class Wallet(commands.Cog):
 
-    wallet = discord.SlashCommandGroup('wallet')
+    wallet = discord.SlashCommandGroup('portefeuille')
 
     def __init__(self):
         self.con = sql.connect('game/data/data_base.db')
         self.cur = self.con.cursor()
 
-    def insert(self, author, value):
+    def insert(self, author_id, value):
         self.cur.execute(f"""UPDATE user SET money = money + {value}
-                         WHERE id = {author}""")
+                         WHERE id = {author_id}""")
         self.con.commit()
 
-    @wallet.command()
+    @wallet.command(name='solde')
     async def amount(self, ctx):
         self.cur.execute(
             f"SELECT money FROM user WHERE id = {ctx.author.id}"
             )
         user = self.cur.fetchone()
         if not user:
-            embed = discord.Embed(
-                colour=ERROR_COLOUR,
-                description="Vous devez d'abord vous enregistrer."
-                )
-            await ctx.send_response(emebed=embed)
-            return
-        embed = discord.Embed(colour=MAIN_COLOUR,
-                              description=f"{user[0]} €")
+            self.cur.execute(f"""INSERT INTO user(id, money)
+                             VALUES({ctx.author.id}, 0)""")
+            self.con.commit()
+            embed = discord.Embed(colour=0xA2A200,
+                                  description="0 €")
+        else:
+            money = f"{user[0]:_.2f} €".replace('_', ' ')
+            embed = discord.Embed(colour=0xA2A200,
+                                  description=money.replace('.', ','))
         await ctx.send_response(embed=embed)
 
 
