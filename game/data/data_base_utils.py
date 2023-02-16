@@ -30,7 +30,7 @@ def init_data_base(DATA_BASE):
                     CREATE TABLE IF NOT EXISTS user(
                         id INT NOT NULL PRIMARY KEY,
                         role TEXT NOT NULL DEFAULT "classic",
-                        money INT NOT NULL DEFAULT 0,
+                        money REAL NOT NULL DEFAULT 0,
                         status INT NOT NULL DEFAULT 0,
                         FOREIGN KEY (role) REFERENCES roles_ref(name)
                     );""")

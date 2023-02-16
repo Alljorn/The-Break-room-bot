@@ -5,14 +5,14 @@ from game.user_manager import UserManager
 from game.distributor_manager import DistributorManager
 from game.supply_manager import SupplyManager
 
+import experiments
 
 bot = discord.Bot()
-bot.load_extension("experiments.network")  # responsable : AesirIvy
-
+experiments.init(bot)  # responsable: AesirIvy
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user.name} est prêt")
+    print(f"{bot.user.name} est prêt.")
 
 @bot.slash_command(name = "faire_une_pause", description = "Prenez une pause, commande principale")
 async def take_a_break(ctx: discord.ApplicationContext):
@@ -44,7 +44,7 @@ async def take_a_break(ctx: discord.ApplicationContext):
                     title="Distibuteur", 
                     description="Des nouveautés ?"
                 )
-                # Si le distributeur à afficher n"existe pas
+                # Si le distributeur à afficher n'existe pas
                 if not DistributorManager.distributor_exist(ctx.author.id):
                     self.add_field( # message d'information
                         name="Aucun distributeur",

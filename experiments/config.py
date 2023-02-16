@@ -1,1 +1,1 @@
-MAIN_COLOUR = 11447808  # dark yellow
+MAIN_COLOUR = 0x00A2A2
