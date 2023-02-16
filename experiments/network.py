@@ -21,11 +21,11 @@ class Network(commands.Cog):
         await ctx.send_response(embed=embed)
 
     @network.command()
-    async def post(self, ctx, msg):
-        self.netdata.add_message(ctx.author.id, msg)
+    async def post(self, ctx, message):
+        self.netdata.add_message(ctx.author.id, message)
         embed = discord.Embed(
             colour=MAIN_COLOUR,
-            description=f"You have posted the message: `{msg}`"
+            description=f"You have posted the message: `{message}`"
             )
         await ctx.send_response(embed=embed)
 
