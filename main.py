@@ -2,15 +2,11 @@ import discord
 import config.timeout
 from config.token import token
 
-import nest_asyncio
-
 from game.user_manager import UserManager
 from game.distributor_manager import DistributorManager
 from game.supply_manager import SupplyManager
 
 import experiments
-
-nest_asyncio.apply()
 
 bot = discord.Bot()
 experiments.init(bot)  # responsable: AesirIvy
