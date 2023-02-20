@@ -15,7 +15,7 @@ class Netdata:
             """CREATE TABLE IF NOT EXISTS
             message(author, title, content, value, timestamp)"""
             )
-        # self.delete_messages()
+        self.delete_messages()
 
     def insert_message(self, author, title, message):
         self.cur.execute(
