@@ -16,6 +16,7 @@ class Network(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.netdata = Netdata()
+        self.refresh.start()
 
     @network.command()
     async def receive(self, ctx):
@@ -113,8 +114,7 @@ class MessageChoose(discord.ui.View):
 class MessageLike(discord.ui.View):
 
     async def on_timeout(self):
-        for child in self.children:
-            self.remove_item(child)
+        self.children = []
         await self.message.edit(view=self)
 
     @discord.ui.button(label='Like', style=discord.ButtonStyle.green)
